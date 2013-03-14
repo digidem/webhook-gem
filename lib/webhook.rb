@@ -6,7 +6,7 @@ module Webhook
   class Stripe
     @@api_key = nil
     # Makes these class variables accessible via Stripe['type'] etc.
-    attr_accessor :type, :email, :name, :amount
+    attr_accessor :type, :email, :name, :amount, :description
     
     def initialize(post_content)
       ::Stripe.api_key = @@api_key
@@ -25,6 +25,7 @@ module Webhook
         # In Stripe, customer objects do not have a name, we are using the name from the card.
         @name = charge.card.name
         @amount = charge.amount
+        @description = charge.description
       end
     end
     
