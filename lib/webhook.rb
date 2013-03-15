@@ -5,7 +5,7 @@ module Webhook
   # Reads post content and looks up key details from a Stripe event.
   class Stripe
     # Makes these class variables accessible via Stripe['type'] etc.
-    attr_accessor :type, :email, :name, :amount, :description
+    attr_accessor :type, :email, :name, :amount, :description, :date
     
     def initialize(post_content)
       # Parse the body content as JSON
@@ -24,6 +24,7 @@ module Webhook
         @name = charge.card.name
         @amount = charge.amount
         @description = charge.description
+        @date = Time.at(charge.created.to_i)
       end
     end
     
