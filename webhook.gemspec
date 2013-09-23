@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name        = 'webhook'
-  s.version     = '1.2.1'
+  s.version     = '1.2.2'
   s.date        = '2013-09-23'
   s.summary     = "A wrapper for Stripe webhooks"
   s.description = "This simple gem will take a webhook post, check the event on Stripe, and get basic details about a charge"

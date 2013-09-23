@@ -6,7 +6,7 @@ module Webhook
   # Reads post content and looks up key details from a Stripe event.
   class Stripe
     # Makes these class variables accessible via Stripe['type'] etc.
-    attr_accessor :type, :email, :invoice, :plan, :customer, :name, :amount, :description, :date
+    attr_accessor :type, :email, :invoice, :subscription, :plan, :customer, :name, :amount, :description, :date
     
     def initialize(post_content)
       # Parse the body content as JSON
@@ -20,7 +20,7 @@ module Webhook
         if @charge.customer.nil?
           @type = "single.donation.receipt"
           @name = @charge.card.name
-          @amount = @charge.amount
+          @amount = @charge.amount.to_i
           @description = "Stripe website donation"
           @date = Time.at(@charge.created.to_i)
         end
@@ -28,13 +28,10 @@ module Webhook
         @invoice = event.data.object
         @type = "recurring.donation.receipt"
         @customer = ::Stripe::Customer.retrieve(:id => @invoice.customer, :expand => ['default_card'])
-        puts @customer
         @name = @customer.default_card.name
-        puts @name
         @email = @customer.email
-        @amount = @invoice.total
+        @amount = @invoice.total.to_i
         @plan = @customer.subscription.plan
-        puts @plan
         @date = Time.at(@invoice.date.to_i)
       when "customer.subscription.created"
         @subscription = event.data.object
