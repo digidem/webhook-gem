@@ -19,8 +19,13 @@ module Webhook
       if @type == "charge.succeeded"
         # See https://stripe.com/docs/api#events for the structure of the event object.
         charge = event.data.object
-        # When charging the card the email should be stored in the description
-        @email = charge.description
+        # Check if this charge is attached to a customer or not.
+        if charge.customer.nil?
+          # When charging the card the email should be stored in the description
+          @email = charge.description
+        else
+          @email = ::Stripe::Customer.retrieve(charge.customer).email
+        end
         # In Stripe, customer objects do not have a name, we are using the name from the card.
         @name = charge.card.name
         @amount = charge.amount
