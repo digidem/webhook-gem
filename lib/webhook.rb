@@ -14,23 +14,34 @@ module Webhook
       # For more security, retrieve the actual event from Stripe to make sure it really exists.
       # This is ::Stripe::Event rather than Stripe::Event to namespace correctly.
       event = ::Stripe::Event.retrieve(params['id'])
-      @type = event.type
-      # Only respond to "charge.succeeded" events
-      if @type == "charge.succeeded"
-        # See https://stripe.com/docs/api#events for the structure of the event object.
-        charge = event.data.object
-        # Check if this charge is attached to a customer or not.
-        if charge.customer.nil?
-          # When charging the card the email should be stored in the description
-          @email = charge.description
-        else
-          @email = ::Stripe::Customer.retrieve(charge.customer).email
+      case event.type
+      when "charge.succeeded"
+        @charge = event.data.object
+        if @charge.customer.nil?
+          @type = "single.donation"
+          @name = @charge.card.name
+          @amount = @charge.amount
+          @description = "Stripe website donation"
+          @date = Time.at(@charge.created.to_i)
         end
-        # In Stripe, customer objects do not have a name, we are using the name from the card.
-        @name = charge.card.name
-        @amount = charge.amount
-        @description = "Stripe website donation"
-        @date = Time.at(charge.created.to_i)
+      when "invoice.payment_succeeded"
+        @invoice = event.data.object
+        @type = "recurring.donation"
+        @customer = ::Stripe::Customer.retrieve(:id => @invoice.customer, :expand => ['default_card'])
+        @name = @customer.default_card.name
+        @email = @customer.email
+        @amount = @invoice.total
+        @plan = @customer.subscription.plan.name
+        @date = Time.at(@invoice.date.to_i)
+      when "subscription.created"
+        @subscription = event.data.object
+        @type = "subscription.created"
+        @customer = ::Stripe::Customer.retrieve(:id => @subscription.customer, :expand => ['default_card'])
+        @name = @customer.default_card.name
+        @email = @customer.email
+        @amount = @subscription.plan.amount.to_i * @subscription.quantity.to_i
+        @plan = @subscription.plan.name
+        @date = Time.at(@customer.start.to_i)
       end
     end
     
