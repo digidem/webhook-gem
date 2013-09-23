@@ -28,10 +28,13 @@ module Webhook
         @invoice = event.data.object
         @type = "recurring.donation"
         @customer = ::Stripe::Customer.retrieve(:id => @invoice.customer, :expand => ['default_card'])
+        puts @customer
         @name = @customer.default_card.name
+        puts @name
         @email = @customer.email
         @amount = @invoice.total
         @plan = @customer.subscription.plan
+        puts @plan
         @date = Time.at(@invoice.date.to_i)
       when "subscription.created"
         @subscription = event.data.object
