@@ -18,7 +18,7 @@ module Webhook
       when "charge.succeeded"
         @charge = event.data.object
         if @charge.customer.nil?
-          @type = "single.donation"
+          @type = "single.donation.receipt"
           @name = @charge.card.name
           @amount = @charge.amount
           @description = "Stripe website donation"
@@ -26,7 +26,7 @@ module Webhook
         end
       when "invoice.payment_succeeded"
         @invoice = event.data.object
-        @type = "recurring.donation"
+        @type = "recurring.donation.receipt"
         @customer = ::Stripe::Customer.retrieve(:id => @invoice.customer, :expand => ['default_card'])
         puts @customer
         @name = @customer.default_card.name
@@ -36,9 +36,9 @@ module Webhook
         @plan = @customer.subscription.plan
         puts @plan
         @date = Time.at(@invoice.date.to_i)
-      when "subscription.created"
+      when "customer.subscription.created"
         @subscription = event.data.object
-        @type = "subscription.created"
+        @type = "new.regular.donor"
         @customer = ::Stripe::Customer.retrieve(:id => @subscription.customer, :expand => ['default_card'])
         @name = @customer.default_card.name
         @email = @customer.email
