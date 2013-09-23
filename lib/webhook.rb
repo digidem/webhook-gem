@@ -31,7 +31,7 @@ module Webhook
         @name = @customer.default_card.name
         @email = @customer.email
         @amount = @invoice.total
-        @plan = @customer.subscription.plan.name
+        @plan = @customer.subscription.plan
         @date = Time.at(@invoice.date.to_i)
       when "subscription.created"
         @subscription = event.data.object
@@ -40,7 +40,7 @@ module Webhook
         @name = @customer.default_card.name
         @email = @customer.email
         @amount = @subscription.plan.amount.to_i * @subscription.quantity.to_i
-        @plan = @subscription.plan.name
+        @plan = @subscription.plan
         @date = Time.at(@customer.start.to_i)
       end
     end
