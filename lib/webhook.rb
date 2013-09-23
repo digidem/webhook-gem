@@ -44,7 +44,7 @@ module Webhook
         @email = @customer.email
         @amount = @subscription.plan.amount.to_i * @subscription.quantity.to_i
         @plan = @subscription.plan
-        @date = Time.at(@customer.start.to_i)
+        @date = Time.at(@subscription.start.to_i)
       end
     end
     
