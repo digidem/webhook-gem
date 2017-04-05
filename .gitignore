@@ -15,3 +15,5 @@ tmp
 .yardoc
 _yardoc
 doc/
+
+*.gem
